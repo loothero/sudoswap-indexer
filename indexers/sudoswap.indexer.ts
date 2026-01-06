@@ -94,10 +94,14 @@ export default function indexer(runtimeConfig: ApibaraRuntimeConfig) {
     streamUrl,
     finality: "pending",
     startingBlock,
-    // Filter for all events - we'll filter by address in transform
-    // This is simpler than dynamically updating the filter
+    // Filter for factory events - pair events are emitted via factory
+    // when using create_pair functions, so we capture everything
     filter: {
-      events: [{}], // Match all events
+      events: [
+        {
+          address: normalizedFactoryAddress as `0x${string}`,
+        },
+      ],
     },
     plugins: [
       drizzleStorage({
