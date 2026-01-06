@@ -44,12 +44,24 @@ COPY --from=builder /app/scripts ./scripts
 # Switch to non-root user
 USER indexer
 
-# Environment variables (override at runtime)
+# Environment variables (override at runtime via .env or environment)
 ENV NODE_ENV=production
+
+# Database connection (required - override at runtime)
 ENV DATABASE_URL=postgres://postgres:postgres@postgres:5432/sudoswap
+
+# Apibara DNA stream URL (required - use your private stream URL)
 ENV APIBARA_STREAM_URL=https://starknet.apibara.com
+
+# DNA_TOKEN is optional - only needed for public Apibara streams
+# For private streams, leave unset and use your custom APIBARA_STREAM_URL
+# ENV DNA_TOKEN=
+
+# Factory contract address on Starknet mainnet
 ENV FACTORY_ADDRESS=0x06ddd1b3ad87f0f09662b9156d5d5123bf8f9303a58524505f90b5822b742a6a
-# ENV STARTING_BLOCK=850000
+
+# Starting block (should be before factory deployment)
+ENV STARTING_BLOCK=850000
 
 # Health check - verify node process is responsive
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \

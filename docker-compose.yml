@@ -1,11 +1,12 @@
 # sudoAMM v2 Indexer - Local Development Stack
 #
 # Usage:
-#   docker compose up -d              # Start all services
-#   docker compose up -d postgres     # Start only database
-#   docker compose logs -f indexer    # Follow indexer logs
-#   docker compose down               # Stop all services
-#   docker compose down -v            # Stop and remove volumes
+#   cp .env.example .env        # Copy and configure environment
+#   docker compose up -d        # Start all services
+#   docker compose up -d postgres  # Start only database
+#   docker compose logs -f indexer # Follow indexer logs
+#   docker compose down         # Stop all services
+#   docker compose down -v      # Stop and remove volumes
 
 services:
   # PostgreSQL Database
@@ -54,12 +55,12 @@ services:
         condition: service_healthy
       migrations:
         condition: service_completed_successfully
+    # Load environment from .env file
+    env_file:
+      - .env
     environment:
+      # Override DATABASE_URL for Docker network
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/sudoswap
-      APIBARA_STREAM_URL: ${APIBARA_STREAM_URL:-https://starknet.apibara.com}
-      FACTORY_ADDRESS: ${FACTORY_ADDRESS:-0x06ddd1b3ad87f0f09662b9156d5d5123bf8f9303a58524505f90b5822b742a6a}
-      STARTING_BLOCK: ${STARTING_BLOCK:-850000}
-      DNA_TOKEN: ${DNA_TOKEN:-}
     volumes:
       # Persist indexer state (cursor position)
       - indexer_state:/app/.apibara/state

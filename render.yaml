@@ -50,14 +50,17 @@ services:
         fromDatabase:
           name: sudoswap-db
           property: connectionString
+      # Apibara DNA Stream URL - use your private stream or public endpoint
       - key: APIBARA_STREAM_URL
-        value: "https://starknet.apibara.com"
+        sync: false # Set manually in Render dashboard (e.g., https://your-private-stream.apibara.com)
+      # DNA_TOKEN is optional - only needed for public Apibara streams
+      # For private streams, leave this empty and just set APIBARA_STREAM_URL
+      - key: DNA_TOKEN
+        sync: false # Set manually if using public Apibara (optional for private streams)
       - key: FACTORY_ADDRESS
         value: "0x06ddd1b3ad87f0f09662b9156d5d5123bf8f9303a58524505f90b5822b742a6a"
       - key: STARTING_BLOCK
         value: "850000"
-      - key: DNA_TOKEN
-        sync: false # Set manually in Render dashboard (Apibara auth token)
 
   # ===========================================
   # API Server (REST endpoints)
@@ -111,8 +114,12 @@ services:
 envVarGroups:
   - name: sudoswap-secrets
     envVars:
-      - key: DNA_TOKEN
+      # Private stream URL (required)
+      - key: APIBARA_STREAM_URL
         sync: false # Must be set manually in Render dashboard
+      # DNA token (optional - only for public Apibara streams)
+      - key: DNA_TOKEN
+        sync: false # Optional - leave empty for private streams
 
 # ===========================================
 # Preview Environments (PR deployments)
