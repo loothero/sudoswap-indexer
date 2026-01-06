@@ -26,6 +26,7 @@
   "dependencies": {
     "apibara": "next",
     "@apibara/indexer": "next",
+    "@apibara/protocol": "next",
     "@apibara/starknet": "next",
     "@apibara/plugin-drizzle": "next",
     "drizzle-orm": "^0.38.0",

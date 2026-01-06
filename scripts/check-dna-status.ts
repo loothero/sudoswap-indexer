@@ -1,45 +1,47 @@
+#!/usr/bin/env node
 /**
- * DNA Server Status Check
+ * DNA Server Status Checker
  *
- * Checks if the Apibara DNA server is healthy before starting the indexer.
- * Run with: npm run check-dna
+ * Verifies DNA server connectivity before starting the indexer.
+ * Uses proper gRPC client from @apibara/protocol.
  */
 
-import { RpcProvider } from "starknet";
+import { createAuthenticatedClient } from "@apibara/protocol";
+import { StarknetStream } from "@apibara/starknet";
 
-const DNA_URL = process.env.APIBARA_STREAM_URL || "https://starknet.apibara.com";
+async function checkDnaStatus() {
+  const streamUrl = (process.env.APIBARA_STREAM_URL || "https://starknet.apibara.com").trim();
+  const startingBlock = BigInt((process.env.STARTING_BLOCK || "850000").trim());
 
-async function checkDnaStatus(): Promise<void> {
-  console.log(`Checking DNA server status: ${DNA_URL}`);
+  console.log(`[DNA Status] Stream: ${streamUrl}`);
 
   try {
-    // Try to connect to the DNA server
-    // The Apibara DNA server uses gRPC, but we can check if it's reachable
-    const response = await fetch(`${DNA_URL}/health`, {
-      method: "GET",
-      signal: AbortSignal.timeout(5000),
-    });
+    const client = createAuthenticatedClient(StarknetStream, streamUrl);
+    const status = await client.status();
 
-    if (response.ok) {
-      console.log("DNA server is healthy");
-      process.exit(0);
+    const serverBlock = status.lastIngested?.orderKey;
+    const serverEarliest = status.starting?.orderKey ?? 0n;
+
+    if (serverBlock) {
+      const blocksToSync = serverBlock - startingBlock;
+      console.log(`[DNA Status] Server block: ${serverBlock}, Starting from: ${startingBlock} (${blocksToSync} to sync)`);
+
+      // Warnings for edge cases
+      if (startingBlock < serverEarliest) {
+        console.warn(`[DNA Status] WARNING: Starting block ${startingBlock} is before server's earliest (${serverEarliest})`);
+      }
+      if (startingBlock > serverBlock) {
+        console.warn(`[DNA Status] WARNING: Starting block ${startingBlock} is ahead of server (${serverBlock})`);
+      }
     } else {
-      console.error(`DNA server returned status: ${response.status}`);
-      process.exit(1);
+      console.log(`[DNA Status] Server block: unknown, Starting from: ${startingBlock}`);
     }
-  } catch (error) {
-    // If health endpoint doesn't exist, try a simple connectivity check
-    console.log("Health endpoint not available, checking connectivity...");
 
-    try {
-      // Try to establish a connection (the actual gRPC check would require more setup)
-      console.log("DNA server appears to be reachable");
-      console.log("Note: Full health check requires gRPC client");
-      process.exit(0);
-    } catch (connError) {
-      console.error(`Failed to connect to DNA server: ${connError}`);
-      process.exit(1);
-    }
+    console.log("[DNA Status] ✓ Ready");
+    process.exit(0);
+  } catch (error) {
+    console.error("[DNA Status] ✗ Failed to connect:", error);
+    process.exit(1);
   }
 }
 
