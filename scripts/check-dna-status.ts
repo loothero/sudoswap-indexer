@@ -10,7 +10,9 @@ import { createAuthenticatedClient } from "@apibara/protocol";
 import { StarknetStream } from "@apibara/starknet";
 
 async function checkDnaStatus() {
-  const streamUrl = (process.env.APIBARA_STREAM_URL || "https://starknet.apibara.com").trim();
+  const streamUrl = (process.env.APIBARA_STREAM_URL || "https://starknet.apibara.com")
+    .trim()
+    .replace(/\/+$/, ""); // Strip trailing slashes
   const startingBlock = BigInt((process.env.STARTING_BLOCK || "850000").trim());
 
   console.log(`[DNA Status] Stream: ${streamUrl}`);

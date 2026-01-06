@@ -13,10 +13,11 @@ export default {
         process.env.FACTORY_ADDRESS ||
         "0x06ddd1b3ad87f0f09662b9156d5d5123bf8f9303a58524505f90b5822b742a6a",
 
-      // Apibara DNA stream URL
+      // Apibara DNA stream URL (trim whitespace and trailing slashes)
       streamUrl:
-        process.env.APIBARA_STREAM_URL ||
-        "https://starknet.apibara.com",
+        (process.env.APIBARA_STREAM_URL || "https://starknet.apibara.com")
+          .trim()
+          .replace(/\/+$/, ""),
 
       // Starting block (should be before factory deployment)
       // Mainnet deployment was on 2026-01-06, adjust block number as needed
