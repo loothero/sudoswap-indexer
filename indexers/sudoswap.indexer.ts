@@ -94,13 +94,36 @@ export default function indexer(runtimeConfig: ApibaraRuntimeConfig) {
     streamUrl,
     finality: "pending",
     startingBlock,
-    // Filter for factory events - pair events are emitted via factory
-    // when using create_pair functions, so we capture everything
+    // Filter by event selectors (no address = matches all contracts)
+    // We verify the emitting address in the transform function
     filter: {
       events: [
-        {
-          address: normalizedFactoryAddress as `0x${string}`,
-        },
+        // Factory events
+        { keys: [EVENT_SELECTORS.NewERC721Pair as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.NewERC1155Pair as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.ERC20Deposit as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.NFTDeposit as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.ERC1155Deposit as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.ProtocolFeeRecipientUpdate as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.ProtocolFeeMultiplierUpdate as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.BondingCurveStatusUpdate as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.RouterStatusUpdate as `0x${string}`] },
+        // Pair parameter events
+        { keys: [EVENT_SELECTORS.SpotPriceUpdate as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.DeltaUpdate as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.FeeUpdate as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.AssetRecipientChange as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.TokenDeposit as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.TokenWithdrawal as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.OwnershipTransferred as `0x${string}`] },
+        // ERC721 swap events
+        { keys: [EVENT_SELECTORS.SwapNFTOutPairIds as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.SwapNFTInPairIds as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.NFTWithdrawalIds as `0x${string}`] },
+        // ERC1155 swap events
+        { keys: [EVENT_SELECTORS.SwapNFTOutPairCount as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.SwapNFTInPairCount as `0x${string}`] },
+        { keys: [EVENT_SELECTORS.NFTWithdrawalCount as `0x${string}`] },
       ],
     },
     plugins: [
