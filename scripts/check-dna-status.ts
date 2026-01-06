@@ -10,9 +10,15 @@ import { createAuthenticatedClient } from "@apibara/protocol";
 import { StarknetStream } from "@apibara/starknet";
 
 async function checkDnaStatus() {
-  const streamUrl = (process.env.APIBARA_STREAM_URL || "https://starknet.apibara.com")
-    .trim()
-    .replace(/\/+$/, ""); // Strip trailing slashes
+  const rawStreamUrl = process.env.APIBARA_STREAM_URL;
+
+  if (!rawStreamUrl) {
+    console.error("[DNA Status] ✗ APIBARA_STREAM_URL environment variable is required");
+    console.error("[DNA Status] Set it to your DNA stream URL (e.g., https://your-stream.starknet.a5a.ch)");
+    process.exit(1);
+  }
+
+  const streamUrl = rawStreamUrl.trim().replace(/\/+$/, ""); // Strip trailing slashes
   const startingBlock = BigInt((process.env.STARTING_BLOCK || "850000").trim());
 
   console.log(`[DNA Status] Stream: ${streamUrl}`);
