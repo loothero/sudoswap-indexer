@@ -17,45 +17,49 @@
  * - Swap Events: NFT buy/sell with IDs (ERC721) or counts (ERC1155)
  */
 
-import { hash } from "starknet";
+import { getSelector } from "@apibara/starknet";
 
 // ============ Event Selectors ============
 
 /**
- * Event selectors computed using starknet_keccak(event_name)
+ * Event selectors computed using Apibara's getSelector (padded format)
  * These must match the Cairo event names exactly
+ *
+ * IMPORTANT: Uses @apibara/starknet getSelector which produces zero-padded
+ * 64-character hex strings (0x + 64 chars). This format is required for
+ * Apibara filter matching.
  */
 export const EVENT_SELECTORS = {
   // Factory events (emitted by LSSVMPairFactory)
-  NewERC721Pair: hash.getSelectorFromName("NewERC721Pair"),
-  NewERC1155Pair: hash.getSelectorFromName("NewERC1155Pair"),
-  ERC20Deposit: hash.getSelectorFromName("ERC20Deposit"),
-  NFTDeposit: hash.getSelectorFromName("NFTDeposit"),
-  ERC1155Deposit: hash.getSelectorFromName("ERC1155Deposit"),
-  ProtocolFeeRecipientUpdate: hash.getSelectorFromName("ProtocolFeeRecipientUpdate"),
-  ProtocolFeeMultiplierUpdate: hash.getSelectorFromName("ProtocolFeeMultiplierUpdate"),
-  BondingCurveStatusUpdate: hash.getSelectorFromName("BondingCurveStatusUpdate"),
-  RouterStatusUpdate: hash.getSelectorFromName("RouterStatusUpdate"),
-  CallTargetStatusUpdate: hash.getSelectorFromName("CallTargetStatusUpdate"),
+  NewERC721Pair: getSelector("NewERC721Pair"),
+  NewERC1155Pair: getSelector("NewERC1155Pair"),
+  ERC20Deposit: getSelector("ERC20Deposit"),
+  NFTDeposit: getSelector("NFTDeposit"),
+  ERC1155Deposit: getSelector("ERC1155Deposit"),
+  ProtocolFeeRecipientUpdate: getSelector("ProtocolFeeRecipientUpdate"),
+  ProtocolFeeMultiplierUpdate: getSelector("ProtocolFeeMultiplierUpdate"),
+  BondingCurveStatusUpdate: getSelector("BondingCurveStatusUpdate"),
+  RouterStatusUpdate: getSelector("RouterStatusUpdate"),
+  CallTargetStatusUpdate: getSelector("CallTargetStatusUpdate"),
 
   // Pair parameter events (emitted by LSSVMPairERC721/ERC1155)
-  SpotPriceUpdate: hash.getSelectorFromName("SpotPriceUpdate"),
-  DeltaUpdate: hash.getSelectorFromName("DeltaUpdate"),
-  FeeUpdate: hash.getSelectorFromName("FeeUpdate"),
-  AssetRecipientChange: hash.getSelectorFromName("AssetRecipientChange"),
-  TokenDeposit: hash.getSelectorFromName("TokenDeposit"),
-  TokenWithdrawal: hash.getSelectorFromName("TokenWithdrawal"),
-  OwnershipTransferred: hash.getSelectorFromName("OwnershipTransferred"),
+  SpotPriceUpdate: getSelector("SpotPriceUpdate"),
+  DeltaUpdate: getSelector("DeltaUpdate"),
+  FeeUpdate: getSelector("FeeUpdate"),
+  AssetRecipientChange: getSelector("AssetRecipientChange"),
+  TokenDeposit: getSelector("TokenDeposit"),
+  TokenWithdrawal: getSelector("TokenWithdrawal"),
+  OwnershipTransferred: getSelector("OwnershipTransferred"),
 
   // ERC721 swap events
-  SwapNFTOutPairIds: hash.getSelectorFromName("SwapNFTOutPairIds"),
-  SwapNFTInPairIds: hash.getSelectorFromName("SwapNFTInPairIds"),
-  NFTWithdrawalIds: hash.getSelectorFromName("NFTWithdrawalIds"),
+  SwapNFTOutPairIds: getSelector("SwapNFTOutPairIds"),
+  SwapNFTInPairIds: getSelector("SwapNFTInPairIds"),
+  NFTWithdrawalIds: getSelector("NFTWithdrawalIds"),
 
   // ERC1155 swap events
-  SwapNFTOutPairCount: hash.getSelectorFromName("SwapNFTOutPairCount"),
-  SwapNFTInPairCount: hash.getSelectorFromName("SwapNFTInPairCount"),
-  NFTWithdrawalCount: hash.getSelectorFromName("NFTWithdrawalCount"),
+  SwapNFTOutPairCount: getSelector("SwapNFTOutPairCount"),
+  SwapNFTInPairCount: getSelector("SwapNFTInPairCount"),
+  NFTWithdrawalCount: getSelector("NFTWithdrawalCount"),
 } as const;
 
 // ============ Primitive Decoders ============
@@ -82,12 +86,13 @@ export function decodeU256(low: string | undefined, high: string | undefined): b
 }
 
 /**
- * Convert felt252 to normalized hex string
- * Removes leading zeros for consistent address format
+ * Convert felt252 to normalized hex string (padded format)
+ * Returns zero-padded 64-character hex string (0x + 64 chars)
+ * This format matches Apibara's getSelector output for consistent comparison
  */
 export function feltToHex(felt: string | undefined | null): string {
-  if (!felt) return "0x0";
-  return `0x${BigInt(felt).toString(16)}`;
+  if (!felt) return "0x" + "0".repeat(64);
+  return `0x${BigInt(felt).toString(16).padStart(64, "0")}`;
 }
 
 /**
