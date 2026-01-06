@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Apibara state (local only)
+.apibara/state/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+!README.md
+
+# Render config (not needed in image)
+render.yaml

@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Environment variables
+.env
+.env.local
+
+# Apibara cache
+.apibara/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

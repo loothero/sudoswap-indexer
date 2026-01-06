@@ -1,0 +1,96 @@
+# sudoAMM v2 Indexer - Local Development Stack
+#
+# Usage:
+#   docker compose up -d              # Start all services
+#   docker compose up -d postgres     # Start only database
+#   docker compose logs -f indexer    # Follow indexer logs
+#   docker compose down               # Stop all services
+#   docker compose down -v            # Stop and remove volumes
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: sudoswap-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sudoswap
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sudoswap"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Database migrations (runs once then exits)
+  migrations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: sudoswap-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/sudoswap
+    command: ["npm", "run", "db:push"]
+    restart: "no"
+
+  # sudoAMM v2 Indexer
+  indexer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sudoswap-indexer
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/sudoswap
+      APIBARA_STREAM_URL: ${APIBARA_STREAM_URL:-https://starknet.apibara.com}
+      FACTORY_ADDRESS: ${FACTORY_ADDRESS:-0x06ddd1b3ad87f0f09662b9156d5d5123bf8f9303a58524505f90b5822b742a6a}
+      STARTING_BLOCK: ${STARTING_BLOCK:-850000}
+      DNA_TOKEN: ${DNA_TOKEN:-}
+    volumes:
+      # Persist indexer state (cursor position)
+      - indexer_state:/app/.apibara/state
+
+  # pgAdmin (optional - for database management UI)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: sudoswap-pgadmin
+    restart: unless-stopped
+    profiles:
+      - admin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@sudoswap.xyz
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+    driver: local
+  indexer_state:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  default:
+    name: sudoswap-network

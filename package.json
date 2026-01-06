@@ -1,0 +1,42 @@
+{
+  "name": "@sudoswap/indexer",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "apibara dev",
+    "build": "apibara build",
+    "start": "apibara start",
+    "check-dna": "tsx scripts/check-dna-status.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "keywords": [
+    "starknet",
+    "nft",
+    "amm",
+    "indexer",
+    "apibara",
+    "sudoswap"
+  ],
+  "author": "",
+  "license": "MIT",
+  "description": "sudoAMM v2 Cairo event indexer using Apibara with PostgreSQL persistence",
+  "dependencies": {
+    "apibara": "next",
+    "@apibara/indexer": "next",
+    "@apibara/starknet": "next",
+    "@apibara/plugin-drizzle": "next",
+    "drizzle-orm": "^0.38.0",
+    "pg": "^8.13.0",
+    "starknet": "^7.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "drizzle-kit": "^0.30.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
