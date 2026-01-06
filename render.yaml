@@ -57,10 +57,14 @@ services:
       # For private streams, leave this empty and just set APIBARA_STREAM_URL
       - key: DNA_TOKEN
         sync: false # Set manually if using public Apibara (optional for private streams)
+      # Factory contract address - override when deploying updated contracts
       - key: FACTORY_ADDRESS
         value: "0x06ddd1b3ad87f0f09662b9156d5d5123bf8f9303a58524505f90b5822b742a6a"
+        sync: false # Can be overridden in Render dashboard
+      # Starting block - set to block before factory deployment
       - key: STARTING_BLOCK
         value: "850000"
+        sync: false # Can be overridden in Render dashboard
 
   # ===========================================
   # API Server (REST endpoints)
