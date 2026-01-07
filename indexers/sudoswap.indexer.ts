@@ -146,6 +146,11 @@ export default function indexer(runtimeConfig: ApibaraRuntimeConfig) {
         }
         console.log(`[Indexer] Loaded ${knownPairAddresses.size} existing pair addresses`);
       },
+      "connect:before": ({ request }) => {
+        // Keep connection alive with periodic heartbeats (30 seconds)
+        // This prevents the stream from appearing "done" during quiet periods
+        request.heartbeatInterval = { seconds: 30n, nanos: 0 };
+      },
     },
     async transform({ block }) {
       const logger = useLogger();
